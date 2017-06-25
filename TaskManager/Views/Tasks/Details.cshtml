@@ -1,0 +1,104 @@
+﻿@using TaskManager.Util
+
+@model TaskManager.Models.Task 
+
+@{
+    ViewBag.Title = Html.DisplayFor(model => model.Name);
+}
+
+<script>
+    function OnClickDone(that) {
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("ItemChecked", "CheckListItems")',
+            contentType: 'application/json; charset=utf-8',
+            data: JSON.stringify({ itemId: that.id, state: that.checked }),
+            success: function (data, textStatus, jqXHR) {
+                UpdateTask();
+            },
+        });
+    }
+
+    function OnDeleteClick(id) {
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("Delete", "CheckListItems")',
+            contentType: 'application/json; charset=utf-8',
+            data: JSON.stringify({ id: id }),
+            success: function (data, textStatus, jqXHR) {
+                UpdateTask();
+                $('#tr' + id).remove();
+            },
+        });
+    }
+
+    function UpdateTask() {
+        $.ajax({
+            type: "GET",
+            url: '@Url.Action("GetTaskPartial", "Tasks")',
+            cache: false,
+            dataType: "html",
+            data: { id: $('#hiddenId').val() },
+            success: function (data, textStatus, jqXHR) {
+                $("#taskPartial").html(data);
+            },
+        });
+    }
+</script>
+
+<h2>@Html.DisplayFor(model => model.Name)</h2>
+
+<div>
+    <hr />
+    <div id="taskPartial">
+        @Html.Partial("_taskPartialView", Model)
+    </div>
+    
+    <p>@Html.ActionLink("Добавить новый шаг", "Create", "CheckListItems", new { taskId = Model.Id }, null)</p>
+
+    <table class="table">
+        <tr>
+            <th>
+                Номер шага
+            </th>
+            <th>
+                Название
+            </th>
+            <th>
+                Описание
+            </th>
+            <th>
+                Выполнено
+            </th>
+            <th></th>
+        </tr>
+
+        @foreach (var item in Model.CheckList)
+        {
+            string trId = "tr" + item.Id;
+            <tr id="@trId">
+                <td>
+                    @Html.DisplayFor(modelItem => item.Order)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Name)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Description)
+                </td>
+                <td>
+                    @Html.CheckBoxFor(m => item.Done, new { @id = @item.Id, @onclick = "OnClickDone(this)" })
+                </td>
+                <td>
+                    <input type="button" value="Удалить" class="btn btn-default" onclick="OnDeleteClick(@item.Id)" />
+                </td>
+            </tr>
+        }
+    </table>
+</div>
+<p>
+    @Html.ActionLink("Редактировать", "Edit", new { id = Model.Id }) |
+    @Html.ActionLink("Вернуться к списку", "Index")
+</p>
+
+@Html.Hidden("hiddenId", Model.Id)

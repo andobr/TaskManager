@@ -1,0 +1,49 @@
+﻿@using TaskManager.Util
+
+@model TaskManager.Models.Task 
+
+@{
+    ViewBag.Title = @Html.DisplayFor(model => model.Name);
+}
+
+<h2>@Html.DisplayFor(model => model.Name)</h2>
+
+<h3>Вы действительно хотите удалить эту задачу?</h3>
+<div>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.Name)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Name)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Description)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Description)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Status)
+        </dt>
+
+        <dd>
+            @Model.Status.GetDisplayName()
+        </dd>
+
+    </dl>
+
+    @using (Html.BeginForm()) {
+        @Html.AntiForgeryToken()
+
+        <div class="form-actions no-color">
+            <input type="submit" value="Удалить" class="btn btn-default" /> |
+            @Html.ActionLink("К списку задач", "Index")
+        </div>
+    }
+</div>
